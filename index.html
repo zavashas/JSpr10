@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>База данных животных</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+      <h1>Животные</h1>
+      <form id="animal-form">
+        <label for="species">Вид животного:</label>
+        <input type="text" id="species" required>
+        <label for="name">Имя:</label>
+        <input type="text" id="name" required>
+        <label for="age">Возраст (в годах):</label>
+        <input type="number" id="age" required>
+        <label for="features">Особенности:</label>
+        <input type="text" id="features" required>
+        <button type="submit">Добавить животное</button>
+      </form>
+    <div id="animal-list"></div>
+  </div>
+      <script src="script.js"></script>
+</body>
+</html>
