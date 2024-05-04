@@ -1,89 +1,108 @@
-const animals = [];
+class Animal {
+  constructor(species, name, age, features) {
+    this.species = species;
+    this.name = name;
+    this.age = age;
+    this.features = features;
+  }
+
+  update(species, name, age, features) {
+    this.species = species;
+    this.name = name;
+    this.age = age;
+    this.features = features;
+  }
+}
+
+class AnimalManager {
+  constructor() {
+    this.animals = [];
+    this.currentEditIndex = null;
+  }
+
+  addAnimal(species, name, age, features) {
+    const newAnimal = new Animal(species, name, age, features);
+    this.animals.push(newAnimal);
+    this.displayAnimals();
+  }
+
+  editAnimal(index) {
+    const animal = this.animals[index];
+    document.getElementById("species").value = animal.species;
+    document.getElementById("name").value = animal.name;
+    document.getElementById("age").value = animal.age.toString();
+    document.getElementById("features").value = animal.features;
+    this.currentEditIndex = index;
+  }
+
+  updateAnimal(species, name, age, features) {
+    if (this.currentEditIndex !== null) {
+      this.animals[this.currentEditIndex].update(species, name, age, features);
+      this.currentEditIndex = null;
+    }
+    this.displayAnimals();
+  }
+
+  deleteAnimal(index) {
+    this.animals.splice(index, 1);
+    this.displayAnimals();
+  }
+
+  displayAnimals() {
+    const animalList = document.getElementById("animal-list");
+    animalList.innerHTML = this.animals.map((animal, index) => `
+      <div class="animal-item col-12 col-md-6 col-lg-4 p-3 mb-3 border rounded bg-white">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div>
+            <p><strong>Вид животного:</strong> ${animal.species}</p>
+            <p><strong>Имя:</strong> ${animal.name}</p>
+            <p><strong>Возраст:</strong> ${animal.age} года(лет)</p>
+            <p><strong>Особенности:</strong> ${animal.features}</p>
+          </div>
+          <div>
+            <button class="edit-btn btn btn-info btn-sm" data-index="${index}" onclick="manager.editAnimal(${index})">Изменить</button>
+            <button class="delete-btn btn btn-danger btn-sm" data-index="${index}" onclick="manager.deleteAnimal(${index})">Удалить</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+}
+
+const manager = new AnimalManager();
 
 document.addEventListener("DOMContentLoaded", function() {
   const animalForm = document.getElementById("animal-form");
-  const animalList = document.getElementById("animal-list");
 
   animalForm.addEventListener("submit", function(event) {
     event.preventDefault();
-    addOrUpdateAnimal();
-  });
+    const species = document.getElementById("species").value;
+    const name = document.getElementById("name").value;
+    const age = parseFloat(document.getElementById("age").value);
+    const features = document.getElementById("features").value;
 
-  animalList.addEventListener("click", function(event) {
-    const target = event.target;
-    if (target.classList.contains("edit-btn")) {
-      editAnimal(target.dataset.index);
-    } else if (target.classList.contains("delete-btn")) {
-      deleteAnimal(target.dataset.index);
-    }
-  });
-
-  function addOrUpdateAnimal() {
-    const species = getValue("species");
-    const name = getValue("name");
-    const age = parseInt(getValue("age"));
-    const features = getValue("features"); 
-    if (!species || !name || !age || !features) {
+    if (!species || !name || isNaN(age) || !features) {
       alert("Пожалуйста, заполните все поля.");
       return;
     }
 
-    const animal = {
-      species,
-      name,
-      age,
-      features 
-    };
-
-    const index = animals.findIndex(ani => ani.name === name);
-    if (index !== -1) {
-      animals[index] = animal;
+    if (manager.currentEditIndex === null) {
+      manager.addAnimal(species, name, age, features);
     } else {
-      animals.push(animal);
+      manager.updateAnimal(species, name, age, features);
     }
 
-    displayAnimals();
-    clearForm();
-  }
-
-  function displayAnimals() {
-    animalList.innerHTML = animals.map((animal, index) => `
-      <div class="animal-item">
-        <p><strong>Вид животного:</strong> ${animal.species}</p>
-        <p><strong>Имя:</strong> ${animal.name}</p>
-        <p><strong>Возраст:</strong> ${animal.age} года(лет)</p>
-        <p><strong>Особенности:</strong> ${animal.features}</p> 
-        <button class="edit-btn" data-index="${index}">Изменить</button>
-        <button class="delete-btn" data-index="${index}">Удалить</button>
-      </div>
-    `).join("");
-  }
-
-
-  function getValue(id) {
-    return document.getElementById(id).value.trim();
-  }
-
-
-  function clearForm() {
     animalForm.reset();
-  }
+  });
 
-  function deleteAnimal(index) {
-    animals.splice(index, 1);
-    displayAnimals();
-  }
-
-  function editAnimal(index) {
-    const animal = animals[index];
-    setValue("species", animal.species);
-    setValue("name", animal.name);
-    setValue("age", animal.age);
-    setValue("features", animal.features); 
-  }
-
+  const ageInput = document.getElementById("age");
+  ageInput.addEventListener("input", function(event) {
+    let value = event.target.value;
+    value = value.replace(/[^0-9.]/g, '');
+    const firstDecimalIndex = value.indexOf('.');
+    if (firstDecimalIndex !== -1) {
+      value = value.substring(0, firstDecimalIndex + 1) + value.substring(firstDecimalIndex + 1).replace(/\./g, '');
+    }
+    event.target.value = value;
+  });
 });
-
-function setValue(id, value) {
-  document.getElementById(id).value = value;
-}
